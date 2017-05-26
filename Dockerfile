@@ -4,4 +4,4 @@ ENTRYPOINT ["/bin/fluentd-kinesis-forwarder-monitor"]
 
 RUN apk-install ca-certificates
 
-COPY catapult /bin/fluentd-kinesis-forwarder-monitor
+COPY fluentd-kinesis-forwarder-monitor /bin/fluentd-kinesis-forwarder-monitor
