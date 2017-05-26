@@ -57,11 +57,13 @@ func sendToSignalFX(timestamp time.Time) error {
 
 func main() {
 	for {
-		ts, err := trackTimestamp(posFile)
+		ts, context, err := trackTimestamp(posFile)
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
-			log.InfoD("track-timestamp", logger.M{"timestamp": ts.String()})
+			log.GaugeIntD("track-timestamp", int(ts.UnixNano()), logger.M{
+				"timestamp": ts.String(), "context": context,
+			})
 
 			err = sendToSignalFX(ts)
 			if err != nil {
@@ -73,14 +75,19 @@ func main() {
 	}
 }
 
-func readLine(input io.ReadSeeker, start int64) (string, error) {
-	if _, err := input.Seek(start, 0); err != nil {
+func readLine(path string, start int64) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
 		return "", err
 	}
 
-	r := bufio.NewReader(input)
+	if _, err := file.Seek(start, 0); err != nil {
+		return "", err
+	}
+
+	r := bufio.NewReader(file)
 	data, err := r.ReadBytes('\n')
-	if err != nil && err != io.EOF {
+	if err != nil {
 		return "", err
 	}
 
@@ -90,54 +97,56 @@ func readLine(input io.ReadSeeker, start int64) (string, error) {
 	return string(data), nil
 }
 
-func trackTimestamp(posFile string) (time.Time, error) {
+func trackTimestamp(posFile string) (time.Time, string, error) {
 	data, err := ioutil.ReadFile(posFile)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, "", err
 	}
 	parts := strings.Split(string(data), "\t")
 	if len(parts) != 3 {
-		return time.Time{}, fmt.Errorf("error reading pos file: '%s'", string(data))
+		return time.Time{}, "", fmt.Errorf("error reading pos file: '%s'", string(data))
 	}
 	offset, err := strconv.ParseInt(parts[1], 16, 64)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, "", err
 	}
 
 	logFile := parts[0]
 	fileinfo, err := os.Stat(logFile)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, "", err
 	}
 	stat, ok := fileinfo.Sys().(*syscall.Stat_t)
 	if !ok {
-		return time.Time{}, fmt.Errorf("Failed to retrieve log file's inode")
+		return time.Time{}, "", fmt.Errorf("Failed to retrieve log file's inode")
 	}
 
 	fileINode, err := strconv.ParseUint(strings.Trim(parts[2], "\n"), 16, 64)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, "", err
 	}
 	if stat.Ino != fileINode {
-		log.Info("File rotate detected")
 		// Return creation time of the current log file.  This overestimates how far along fluentd
 		// is, but that should okay for our purposes
-		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), nil
+		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), "file rotate detected", nil
 	}
 
-	file, err := os.Open(logFile)
-	if err != nil {
-		return time.Time{}, err
+	line, err := readLine(logFile, offset+1)
+	if err == io.EOF { // If byte is at the end of file, fluentd is caught up
+		return time.Now(), "byte offset points to eof", nil
 	}
-
-	line, err := readLine(file, offset+1)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, "", err
 	}
 
 	if len(line) < 32 {
-		return time.Time{}, fmt.Errorf("No timestamp found")
+		return time.Time{}, "", fmt.Errorf("No timestamp found")
 	}
 
-	return time.Parse(time.RFC3339Nano, "2017-05-21T22:49:23.314299+00:00")
+	ts, err := time.Parse(time.RFC3339Nano, "2017-05-21T22:49:23.314299+00:00")
+	if err != nil {
+		return time.Time{}, "", err
+	}
+
+	return ts, "parsed from log line", nil
 }
