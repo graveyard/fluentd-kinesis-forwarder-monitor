@@ -62,7 +62,7 @@ func main() {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
 			log.GaugeIntD("track-timestamp", int(ts.UnixNano()), logger.M{
-				"timestamp": ts.String(), "context": context,
+				"latest-log-ts": ts.String(), "context": context, "val-units": "nsec",
 			})
 
 			err = sendToSignalFX(ts)
