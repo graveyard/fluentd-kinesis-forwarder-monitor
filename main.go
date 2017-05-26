@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -20,7 +21,7 @@ import (
 
 var log = logger.New("fluentd-kinesis-forwarder-monitor")
 var sfxSink = sfxclient.NewHTTPSink()
-var hostname, scope, logsFile, posFile string
+var hostname, scope, posFile string
 
 func getEnv(envVar string) string {
 	val := os.Getenv(envVar)
@@ -31,7 +32,6 @@ func getEnv(envVar string) string {
 }
 func init() {
 	scope = getEnv("ENV_SCOPE")
-	logsFile = getEnv("LOG_FILE")
 	posFile = getEnv("LOG_FILE_POS")
 	sfxSink.AuthToken = getEnv("SIGNALFX_API_KEY")
 
@@ -57,7 +57,7 @@ func sendToSignalFX(timestamp time.Time) error {
 
 func main() {
 	for {
-		ts, err := trackTimeStamp(logsFile, posFile)
+		ts, err := trackTimestamp(posFile)
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
@@ -90,7 +90,7 @@ func readLine(input io.ReadSeeker, start int64) (string, error) {
 	return string(data), nil
 }
 
-func trackTimeStamp(logsFile, posFile string) (time.Time, error) {
+func trackTimestamp(posFile string) (time.Time, error) {
 	data, err := ioutil.ReadFile(posFile)
 	if err != nil {
 		return time.Time{}, err
@@ -104,7 +104,28 @@ func trackTimeStamp(logsFile, posFile string) (time.Time, error) {
 		return time.Time{}, err
 	}
 
-	file, err := os.Open(logsFile)
+	logFile := parts[0]
+	fileinfo, err := os.Stat(logFile)
+	if err != nil {
+		return time.Time{}, err
+	}
+	stat, ok := fileinfo.Sys().(*syscall.Stat_t)
+	if !ok {
+		return time.Time{}, fmt.Errorf("Failed to retrieve log file's inode")
+	}
+
+	fileINode, err := strconv.ParseUint(strings.Trim(parts[2], "\n"), 16, 64)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if stat.Ino != fileINode {
+		log.Info("File rotate detected")
+		// Return creation time of the current log file.  This overestimates how far along fluentd
+		// is, but that should okay for our purposes
+		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), nil
+	}
+
+	file, err := os.Open(logFile)
 	if err != nil {
 		return time.Time{}, err
 	}
