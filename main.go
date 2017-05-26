@@ -19,7 +19,7 @@ import (
 )
 
 var log = logger.New("fluentd-kinesis-forwarder-monitor")
-var sfxSink = sfxclient.NewHTTPDatapointSink()
+var sfxSink = sfxclient.NewHTTPSink()
 var hostname, scope, logsFile, posFile string
 
 func getEnv(envVar string) string {
