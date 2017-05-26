@@ -57,7 +57,7 @@ func sendToSignalFX(timestamp time.Time) error {
 
 func main() {
 	for {
-		ts, err := trackTimeStamp("./messages", "./messages.fluentd.pos")
+		ts, err := trackTimeStamp(logsFile, posFile)
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
