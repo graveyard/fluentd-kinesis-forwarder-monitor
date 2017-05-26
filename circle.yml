@@ -5,6 +5,7 @@ machine:
   - docker
 compile:
   override:
+  - make install_deps
   - make build
 test:
   override:
