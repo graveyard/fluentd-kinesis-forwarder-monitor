@@ -87,7 +87,7 @@ func readLine(input io.ReadSeeker, start int64) (string, error) {
 	if len(data) > 0 && data[len(data)-1] == '\n' { // Trim off '\n'
 		data = data[:len(data)-1]
 	}
-	return string(data), err
+	return string(data), nil
 }
 
 func trackTimeStamp(logsFile, posFile string) (time.Time, error) {
