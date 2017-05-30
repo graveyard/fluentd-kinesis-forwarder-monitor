@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	l "log"
 	"os"
 	"strconv"
 	"strings"
@@ -17,36 +16,18 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 
 	"gopkg.in/Clever/kayvee-go.v6/logger"
+
+	"github.com/Clever/fluentd-kinesis-forwarder-monitor/config"
 )
 
 var log = logger.New("fluentd-kinesis-forwarder-monitor")
 var sfxSink = sfxclient.NewHTTPSink()
-var hostname, scope, posFile string
-
-func getEnv(envVar string) string {
-	val := os.Getenv(envVar)
-	if val == "" {
-		l.Fatalf("Must specify env variable %s", envVar)
-	}
-	return val
-}
-func init() {
-	scope = getEnv("ENV_SCOPE")
-	posFile = getEnv("LOG_FILE_POS")
-	sfxSink.AuthToken = getEnv("SIGNALFX_API_KEY")
-
-	host, err := os.Hostname()
-	if err != nil {
-		l.Fatal(err)
-	}
-	hostname = host
-}
 
 func sendToSignalFX(timestamp time.Time) error {
 	points := []*datapoint.Datapoint{}
 	dimensions := map[string]string{
-		"hostname": hostname,
-		"scope":    scope,
+		"hostname": config.HOSTNAME,
+		"scope":    config.ENV_SCOPE,
 	}
 
 	datum := sfxclient.Gauge("fluentd-kinesis-forwarder-monitor", dimensions, timestamp.Unix())
@@ -56,8 +37,12 @@ func sendToSignalFX(timestamp time.Time) error {
 }
 
 func main() {
+	config.Initialize()
+
+	sfxSink.AuthToken = config.SIGNALFX_API_KEY
+
 	for {
-		ts, context, err := trackTimestamp(posFile)
+		ts, context, err := trackTimestamp(config.LOG_FILE_POS)
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
