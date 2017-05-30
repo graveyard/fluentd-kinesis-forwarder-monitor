@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	HOSTNAME         string
 	ENV_SCOPE        string
 	LOG_FILE_POS     string
 	SIGNALFX_API_KEY string
@@ -22,12 +21,6 @@ func getEnv(envVar string) string {
 
 // Initialize populates config variables.  Needed to prevent log.Fatal's when running unit tests.
 func Initialize() {
-	host, err := os.Hostname()
-	if err != nil {
-		log.Fatal(err)
-	}
-	HOSTNAME = host
-
 	ENV_SCOPE = getEnv("ENV_SCOPE")
 	LOG_FILE_POS = getEnv("LOG_FILE_POS")
 	SIGNALFX_API_KEY = getEnv("SIGNALFX_API_KEY")
