@@ -88,6 +88,8 @@ func readLine(path string, start int64) (string, error) {
 	return string(data), nil
 }
 
+// parsePositionData parses fluentd position files which have the following format:
+// <file-path> \t <byte offset> \t <inode> \n
 func parsePositionData(data []byte) (posInfo, error) {
 	parts := strings.Split(string(data), "\t")
 	if len(parts) != 3 {
