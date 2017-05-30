@@ -47,14 +47,17 @@ func main() {
 
 	sfxSink.AuthToken = config.SIGNALFX_API_KEY
 
+	count := 0
 	for {
 		ts, context, err := trackTimestamp(config.LOG_FILE_POS)
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
-			log.GaugeIntD("track-timestamp", int(ts.UnixNano()), logger.M{
-				"latest-log-ts": ts.String(), "context": context, "val-units": "nsec",
-			})
+			if count == 0 {
+				log.GaugeIntD("track-timestamp", int(ts.UnixNano()), logger.M{
+					"latest-log-ts": ts.String(), "context": context, "val-units": "nsec",
+				})
+			}
 
 			err = sendToSignalFX(ts)
 			if err != nil {
@@ -62,7 +65,8 @@ func main() {
 			}
 		}
 
-		time.Sleep(10 * time.Second)
+		count = (count + 1) % 4
+		time.Sleep(15 * time.Second)
 	}
 }
 
