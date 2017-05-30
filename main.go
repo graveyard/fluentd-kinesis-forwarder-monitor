@@ -125,7 +125,7 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 	if err != nil {
 		return time.Time{}, "", err
 	}
-	if stat.Ino != fileINode {
+	if stat.Ino != fileINode { // Differnt inodes means a log rotation has occured
 		// Return creation time of the current log file.  This overestimates how far along fluentd
 		// is, but that should okay for our purposes
 		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), "file rotate detected", nil
