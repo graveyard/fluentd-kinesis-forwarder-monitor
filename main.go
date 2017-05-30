@@ -23,6 +23,12 @@ import (
 var log = logger.New("fluentd-kinesis-forwarder-monitor")
 var sfxSink = sfxclient.NewHTTPSink()
 
+type posInfo struct {
+	logFile string
+	inode   uint64
+	offset  int64
+}
+
 func sendToSignalFX(timestamp time.Time) error {
 	points := []*datapoint.Datapoint{}
 	dimensions := map[string]string{
@@ -82,22 +88,45 @@ func readLine(path string, start int64) (string, error) {
 	return string(data), nil
 }
 
+func parsePositionData(data []byte) (posInfo, error) {
+	parts := strings.Split(string(data), "\t")
+	if len(parts) != 3 {
+		return posInfo{}, fmt.Errorf("error parsing pos file: '%s'", string(data))
+	}
+
+	logFile := parts[0]
+	if logFile == "" {
+		return posInfo{}, fmt.Errorf("Log file path not found in position file")
+	}
+
+	offset, err := strconv.ParseInt(parts[1], 16, 64)
+	if err != nil {
+		return posInfo{}, err
+	}
+
+	fileINode, err := strconv.ParseUint(strings.Trim(parts[2], "\n"), 16, 64)
+	if err != nil {
+		return posInfo{}, err
+	}
+
+	return posInfo{
+		logFile: logFile,
+		inode:   fileINode,
+		offset:  offset,
+	}, nil
+}
+
 func trackTimestamp(posFile string) (time.Time, string, error) {
 	data, err := ioutil.ReadFile(posFile)
 	if err != nil {
 		return time.Time{}, "", err
 	}
-	parts := strings.Split(string(data), "\t")
-	if len(parts) != 3 {
-		return time.Time{}, "", fmt.Errorf("error reading pos file: '%s'", string(data))
-	}
-	offset, err := strconv.ParseInt(parts[1], 16, 64)
+	pos, err := parsePositionData(data)
 	if err != nil {
 		return time.Time{}, "", err
 	}
 
-	logFile := parts[0]
-	fileinfo, err := os.Stat(logFile)
+	fileinfo, err := os.Stat(pos.logFile)
 	if err != nil {
 		return time.Time{}, "", err
 	}
@@ -106,17 +135,14 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 		return time.Time{}, "", fmt.Errorf("Failed to retrieve log file's inode")
 	}
 
-	fileINode, err := strconv.ParseUint(strings.Trim(parts[2], "\n"), 16, 64)
-	if err != nil {
-		return time.Time{}, "", err
-	}
-	if stat.Ino != fileINode { // Differnt inodes means a log rotation has occured
+	if stat.Ino != pos.inode { // Differnt inodes means a log rotation has occured
 		// Return creation time of the current log file.  This overestimates how far along fluentd
 		// is, but that should okay for our purposes
 		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), "file rotate detected", nil
 	}
 
-	line, err := readLine(logFile, offset+1)
+	// pos.offset is the position of the \n of the late read log line.  +1 to skip \n.
+	line, err := readLine(pos.logFile, pos.offset+1)
 	if err == io.EOF { // If byte is at the end of file, fluentd is caught up
 		return time.Now(), "byte offset points to eof", nil
 	}
