@@ -29,14 +29,14 @@ type posInfo struct {
 	offset  int64
 }
 
-func sendToSignalFX(timestamp time.Time) error {
+func sendToSignalFX(delay int64) error {
 	points := []*datapoint.Datapoint{}
 	dimensions := map[string]string{
 		"hostname": config.HOSTNAME,
 		"scope":    config.ENV_SCOPE,
 	}
 
-	datum := sfxclient.Gauge("fluentd-kinesis-forwarder-monitor", dimensions, timestamp.Unix())
+	datum := sfxclient.Gauge("fluentd-kinesis-forwarder-monitor.delay", dimensions, delay)
 	points = append(points, datum)
 
 	return sfxSink.AddDatapoints(context.Background(), points)
@@ -53,13 +53,15 @@ func main() {
 		if err != nil {
 			log.ErrorD("track-timestamp", logger.M{"msg": err.Error()})
 		} else {
+			delay := time.Now().Unix() - ts.Unix()
+
 			if count == 0 {
-				log.GaugeIntD("track-timestamp", int(ts.UnixNano()), logger.M{
-					"latest-log-ts": ts.String(), "context": context, "val-units": "nsec",
+				log.GaugeIntD("track-timestamp", int(delay), logger.M{
+					"latest-log-ts": ts.String(), "context": context, "val-units": "sec",
 				})
 			}
 
-			err = sendToSignalFX(ts)
+			err = sendToSignalFX(delay)
 			if err != nil {
 				log.ErrorD("send-to-signalfx", logger.M{"msg": err.Error()})
 			}
