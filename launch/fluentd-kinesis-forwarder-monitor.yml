@@ -1,0 +1,13 @@
+run:
+  type: docker
+env:
+- ENV_SCOPE
+- LOG_FILE_POS
+- SIGNALFX_API_KEY
+resources:
+  cpu: 0.01
+  max_mem: 0.05
+shepherds:
+- "xavi.ramirez@clever.com"
+expose: []
+team: "eng-infra"
