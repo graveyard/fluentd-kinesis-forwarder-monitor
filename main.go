@@ -181,8 +181,7 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), "file rotate detected", nil
 	}
 
-	// pos.offset is the position of the \n of the late read log line.  +1 to skip \n.
-	line, err := readLine(pos.logFile, pos.offset+1)
+	line, err := readLine(pos.logFile, pos.offset)
 	if err == io.EOF { // If byte is at the end of file, fluentd is caught up
 		return time.Now(), "byte offset points to eof", nil
 	}
