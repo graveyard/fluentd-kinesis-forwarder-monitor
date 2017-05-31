@@ -194,7 +194,7 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 		return time.Time{}, "", fmt.Errorf("No timestamp found")
 	}
 
-	ts, err := time.Parse(time.RFC3339Nano, "2017-05-21T22:49:23.314299+00:00")
+	ts, err := time.Parse(time.RFC3339Nano, line[:32])
 	if err != nil {
 		return time.Time{}, "", err
 	}
