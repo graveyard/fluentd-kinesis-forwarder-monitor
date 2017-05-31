@@ -56,14 +56,14 @@ func getHostname() string {
 
 	res, err := client.Get("http://169.254.169.254/latest/meta-data/local-ipv4")
 	if err != nil {
-		log.Error("meta-data-request-failed")
+		log.ErrorD("meta-data-request-failed", logger.M{"msg": err.Error()})
 		return "unknown ip"
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Error("meta-data-parse-failed")
+		log.ErrorD("meta-data-parse-failed", logger.M{"msg": err.Error()})
 		return "unknown ip"
 	}
 
