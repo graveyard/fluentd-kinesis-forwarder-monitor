@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -22,6 +24,7 @@ import (
 
 var log = logger.New("fluentd-kinesis-forwarder-monitor")
 var sfxSink = sfxclient.NewHTTPSink()
+var hostname string
 
 type posInfo struct {
 	logFile string
@@ -32,7 +35,7 @@ type posInfo struct {
 func sendToSignalFX(delay int64) error {
 	points := []*datapoint.Datapoint{}
 	dimensions := map[string]string{
-		"hostname": config.HOSTNAME,
+		"hostname": hostname,
 		"scope":    config.ENV_SCOPE,
 	}
 
@@ -42,10 +45,39 @@ func sendToSignalFX(delay int64) error {
 	return sfxSink.AddDatapoints(context.Background(), points)
 }
 
+func getHostname() string {
+	transport := &http.Transport{
+		Dial: func(network, addr string) (net.Conn, error) {
+			return net.DialTimeout(network, addr, time.Duration(3*time.Second))
+		},
+	}
+
+	client := &http.Client{Transport: transport}
+
+	res, err := client.Get("http://169.254.169.254/latest/meta-data/local-ipv4")
+	if err != nil {
+		log.ErrorD("meta-data-request-failed", logger.M{"msg": err.Error()})
+		return "unknown ip"
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.ErrorD("meta-data-parse-failed", logger.M{"msg": err.Error()})
+		return "unknown ip"
+	}
+
+	hostname = "ip-" + strings.Replace(string(body), ".", "-", -1)
+
+	return hostname
+}
+
 func main() {
 	config.Initialize()
 
 	sfxSink.AuthToken = config.SIGNALFX_API_KEY
+
+	hostname = getHostname()
 
 	count := 0
 	for {
@@ -149,8 +181,7 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 		return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)), "file rotate detected", nil
 	}
 
-	// pos.offset is the position of the \n of the late read log line.  +1 to skip \n.
-	line, err := readLine(pos.logFile, pos.offset+1)
+	line, err := readLine(pos.logFile, pos.offset)
 	if err == io.EOF { // If byte is at the end of file, fluentd is caught up
 		return time.Now(), "byte offset points to eof", nil
 	}
@@ -162,9 +193,13 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 		return time.Time{}, "", fmt.Errorf("No timestamp found")
 	}
 
-	ts, err := time.Parse(time.RFC3339Nano, "2017-05-21T22:49:23.314299+00:00")
+	ts, err := time.Parse(time.RFC3339Nano, line[:32])
 	if err != nil {
-		return time.Time{}, "", err
+		ts, err = time.Parse(time.Stamp, line[:32]) // timestamps in Rsyslog_TraditionalFileFormat
+
+		if err != nil {
+			return time.Time{}, "", err
+		}
 	}
 
 	return ts, "parsed from log line", nil
