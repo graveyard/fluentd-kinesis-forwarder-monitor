@@ -195,7 +195,11 @@ func trackTimestamp(posFile string) (time.Time, string, error) {
 
 	ts, err := time.Parse(time.RFC3339Nano, line[:32])
 	if err != nil {
-		return time.Time{}, "", err
+		ts, err = time.Parse(time.Stamp, line[:32]) // timestamps in Rsyslog_TraditionalFileFormat
+
+		if err != nil {
+			return time.Time{}, "", err
+		}
 	}
 
 	return ts, "parsed from log line", nil
