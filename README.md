@@ -7,5 +7,5 @@ Owned by eng-infra
 ## Deploying
 
 ```
-ark start fluentd-kinesis-forwarder-monitor -e production
+	$ ecs-ops omni-start production fluentd-kinesis-forwarder-monitor
 ```
