@@ -72,8 +72,16 @@ func getHostname() string {
 	return hostname
 }
 
+func heartbeat() {
+	for _ = range time.Tick(15 * time.Second) {
+		log.Info("heartbeat")
+	}
+}
+
 func main() {
 	config.Initialize()
+
+	go heartbeat()
 
 	sfxSink.AuthToken = config.SIGNALFX_API_KEY
 
