@@ -4,10 +4,8 @@ include golang.mk
 .PHONY: all test build clean
 SHELL := /bin/bash
 PKGS = $(shell GO15VENDOREXPERIMENT=1 go list ./... | grep -v "vendor/" | grep -v "db")
-$(eval $(call golang-version-check,1.8))
+$(eval $(call golang-version-check,1.9))
 
-$(GOPATH)/bin/glide:
-	@go get github.com/Masterminds/glide
 
 
 test: $(PKGS)
@@ -18,8 +16,10 @@ build:
 # disable CGO and link completely statically (this is to enable us to run in containers that don't use glibc)
 	@CGO_ENABLED=0 go build -a -installsuffix cgo
 
-install_deps: $(GOPATH)/bin/glide
-	@$(GOPATH)/bin/glide install
 
 run: build
 	./fluentd-kinesis-forwarder-monitor
+
+
+install_deps: golang-dep-vendor-deps
+	$(call golang-dep-vendor)
