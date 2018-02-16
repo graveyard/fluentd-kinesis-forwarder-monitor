@@ -22,10 +22,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/Clever/fluentd-kinesis-forwarder-monitor"
-
-[[constraint]]
   name = "github.com/signalfx/golib"
 
 [[constraint]]
