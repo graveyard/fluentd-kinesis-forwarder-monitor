@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/Clever/fluentd-kinesis-forwarder-monitor"
-  packages = ["config"]
-  revision = "5057ac54a48e6a763d340411b0acb0c1f0136b68"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "6d212800a42e8ab5c146b8ace3490ee17e5225f9"
@@ -100,6 +94,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b558e8d7b9c10655a63ab4aace1e6949324214145a2662df38ba4fbd5e0b547f"
+  inputs-digest = "fc5e6b660b86b8488384d89fabce27b56db97ecc73d7d91467daf42203cb3c50"
   solver-name = "gps-cdcl"
   solver-version = 1
