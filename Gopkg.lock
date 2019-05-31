@@ -102,11 +102,12 @@
   revision = "e02fc20de94c78484cd5ffb007f8af96be030a45"
 
 [[projects]]
-  digest = "1:7e661d3634e0e0b42680c712744b165dae9515dce2b2858de4daad8421055d78"
+  branch = "master"
+  digest = "1:c03d9f68b8205578f3d29fbba6c5d42dc9f8acaad8feb79e7d35015f905b9bec"
   name = "github.com/xeipuuv/gojsonschema"
   packages = ["."]
   pruneopts = ""
-  revision = "ff0417f4272e480246b4507459b3f6ae721a87ac"
+  revision = "354ad34c2300dd6e84920ac70b41487336219e43"
 
 [[projects]]
   digest = "1:048740d09592ad3656d4cdd6a9919faa2718e58559b7ae372e0646d1d13af1aa"
@@ -116,7 +117,7 @@
   revision = "a6577fac2d73be281a500b310739095313165611"
 
 [[projects]]
-  digest = "1:9a449c1442097e8e5290d189f6bda650439f93d67831eda259695ed3d284c231"
+  digest = "1:ebe5a08de85b249031c22bdf7ea4120be2b8e4751cb647ef8aa829774aa87225"
   name = "gopkg.in/Clever/kayvee-go.v6"
   packages = [
     ".",
@@ -124,8 +125,8 @@
     "router",
   ]
   pruneopts = ""
-  revision = "096364e316a52652d3493be702d8105d8d01db84"
-  version = "v6.6.0"
+  revision = "1e2557bcbd6982e6303c364505d1c129ede8f2ee"
+  version = "v6.17.0"
 
 [[projects]]
   digest = "1:6a4a01d58b227c4b6b11111b9f172ec5c17682b82724e58e6daf3f19f4faccd8"
@@ -144,11 +145,12 @@
   version = "v1.5.3"
 
 [[projects]]
-  digest = "1:896465634474f19642ac8b7bef06539d2b898539b6cd34c7236653fc50d30768"
+  branch = "v2"
+  digest = "1:60ccede33d50c82c86e907255319a6f40dca4ac395e5ee143638176d3b871069"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = ""
-  revision = "a3f3340b5840cee44f372bddb5880fcbc419b46a"
+  revision = "7b8349ac747c6a24702b762d2c4fd9266cf4f1d6"
 
 [solve-meta]
   analyzer-name = "dep"
