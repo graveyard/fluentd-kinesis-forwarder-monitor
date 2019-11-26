@@ -1,6 +1,6 @@
-FROM gliderlabs/alpine:3.3
+FROM alpine:3.10
 
-RUN apk-install ca-certificates
+RUN apk add ca-certificates && update-ca-certificates
 
 COPY fluentd-kinesis-forwarder-monitor /bin/fluentd-kinesis-forwarder-monitor
 
