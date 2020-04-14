@@ -2,6 +2,53 @@
 
 
 [[projects]]
+  digest = "1:b4c1e963c607672044db624b042fbe77da5fc5fcd7c73eff0bb2bf1dac055a1a"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/context",
+    "internal/ini",
+    "internal/sdkio",
+    "internal/sdkmath",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "internal/strings",
+    "internal/sync/singleflight",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/firehose",
+    "service/firehose/firehoseiface",
+    "service/sts",
+    "service/sts/stsiface",
+  ]
+  pruneopts = ""
+  revision = "851d5ffb66720c2540cc68020d4d8708950686c8"
+  version = "v1.30.7"
+
+[[projects]]
   digest = "1:54841a823011a34356f108ae1c31eb00780d62edb9a95051b1559cecb0425fc6"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -9,11 +56,26 @@
   revision = "6d212800a42e8ab5c146b8ace3490ee17e5225f9"
 
 [[projects]]
+  digest = "1:8c9af6e3162383951dee97404fadb761f9ae60b4806998df288a5b143afa7251"
+  name = "github.com/eapache/go-resiliency"
+  packages = ["retrier"]
+  pruneopts = ""
+  revision = "5efd2ed019fd331ec2defc6f3bd98882f1e3e636"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:0a0df3841bb761226e2972450703e6e23ff657bca5df54f5fb9895ec9fbfa4fd"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = ""
   revision = "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317"
+
+[[projects]]
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2b33e84"
 
 [[projects]]
   branch = "master"
@@ -117,7 +179,7 @@
   revision = "a6577fac2d73be281a500b310739095313165611"
 
 [[projects]]
-  digest = "1:46fb6d8419bb51c7688eee659a159310b10532080d75725526da7f0701b92a40"
+  digest = "1:0d5cfbb57e8ff8640a5a54082ee555270378a28db24f24a24af530384a9822bc"
   name = "gopkg.in/Clever/kayvee-go.v6"
   packages = [
     ".",
@@ -125,8 +187,8 @@
     "router",
   ]
   pruneopts = ""
-  revision = "101c81eb56b55fbce79521e501475517adbbbe6e"
-  version = "v6.18.0"
+  revision = "e704be3e70f85875fc9a56cdfac2acabb5a3eb92"
+  version = "v6.22.0"
 
 [[projects]]
   digest = "1:6a4a01d58b227c4b6b11111b9f172ec5c17682b82724e58e6daf3f19f4faccd8"
