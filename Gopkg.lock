@@ -110,14 +110,7 @@
   revision = "354ad34c2300dd6e84920ac70b41487336219e43"
 
 [[projects]]
-  digest = "1:048740d09592ad3656d4cdd6a9919faa2718e58559b7ae372e0646d1d13af1aa"
-  name = "golang.org/x/net"
-  packages = ["context"]
-  pruneopts = ""
-  revision = "a6577fac2d73be281a500b310739095313165611"
-
-[[projects]]
-  digest = "1:46fb6d8419bb51c7688eee659a159310b10532080d75725526da7f0701b92a40"
+  digest = "1:0923ed679d96b9e53b8c43892e2094ebb5dccd0a66709b20c90f43c37ff71ff1"
   name = "gopkg.in/Clever/kayvee-go.v6"
   packages = [
     ".",
@@ -125,8 +118,8 @@
     "router",
   ]
   pruneopts = ""
-  revision = "101c81eb56b55fbce79521e501475517adbbbe6e"
-  version = "v6.18.0"
+  revision = "1c544ce9daf62e3673f4f1ba0bffde53cd13f502"
+  version = "v6.24.0"
 
 [[projects]]
   digest = "1:6a4a01d58b227c4b6b11111b9f172ec5c17682b82724e58e6daf3f19f4faccd8"
@@ -156,30 +149,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/davecgh/go-spew/spew",
-    "github.com/golang/protobuf/proto",
-    "github.com/kr/logfmt",
-    "github.com/pmezard/go-difflib/difflib",
-    "github.com/signalfx/com_signalfx_metrics_protobuf",
-    "github.com/signalfx/gohistogram",
     "github.com/signalfx/golib/datapoint",
-    "github.com/signalfx/golib/errors",
-    "github.com/signalfx/golib/event",
-    "github.com/signalfx/golib/eventcounter",
-    "github.com/signalfx/golib/log",
     "github.com/signalfx/golib/sfxclient",
-    "github.com/signalfx/golib/timekeeper",
     "github.com/stretchr/testify/assert",
-    "github.com/xeipuuv/gojsonpointer",
-    "github.com/xeipuuv/gojsonreference",
-    "github.com/xeipuuv/gojsonschema",
-    "golang.org/x/net/context",
-    "gopkg.in/Clever/kayvee-go.v6",
     "gopkg.in/Clever/kayvee-go.v6/logger",
-    "gopkg.in/Clever/kayvee-go.v6/router",
-    "gopkg.in/logfmt.v0",
-    "gopkg.in/stack.v1",
-    "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
